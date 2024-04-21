@@ -3,10 +3,10 @@ import time
 from bedtime_tracker import BedtimeTracker
 
 
-bedtime_hour = 16
-bedtime_minute = 32
-morning_hour = 16
-morning_minute = 39
+bedtime_hour = 0
+bedtime_minute = 0
+morning_hour = 8
+morning_minute = 0
 
 tracker = BedtimeTracker(
     bedtime_hour=bedtime_hour,
