@@ -8,15 +8,14 @@ bedtime_minute = 0
 morning_hour = 8
 morning_minute = 0
 
+snooze_ms = 5 * 60 * 1000
+
 tracker = BedtimeTracker(
     bedtime_hour=bedtime_hour,
     bedtime_minute=bedtime_minute,
     morning_hour=morning_hour,
     morning_minute=morning_minute,
 )
-
-
-snoozed = False
 
 
 def get_bedtime_message():
@@ -30,33 +29,28 @@ def is_state_normal(root):
 
 
 def update(root, label):
-    if not snoozed:
-        if tracker.is_bed_time():
-            message = get_bedtime_message()
-            label.config(text=message)
-            state_is_normal = is_state_normal(root)
-            if not state_is_normal:
-                snooze(root, label)
-            else:
-                schedule_update(root, label)
+    if tracker.is_bed_time():
+        message = get_bedtime_message()
+        label.config(text=message)
+        state_is_normal = is_state_normal(root)
+        if not state_is_normal:
+            snooze(root, label)
         else:
-            snooze(root, label, round(1000 * tracker.time_until_bed().total_seconds()))
+            schedule_update(root, label)
+    else:
+        snooze(root, label, round(1000 * tracker.time_until_bed().total_seconds()))
 
 
 def schedule_update(root, label):
     root.after(1000, lambda: update(root, label))
 
 
-def snooze(root, label, snooze_time=5000):
-    global snoozed
-    snoozed = True
+def snooze(root, label, snooze_time=snooze_ms):
     root.geometry("0x0")
     root.after(snooze_time, lambda: unsnooze(root, label))
 
 
 def unsnooze(root, label):
-    global snoozed
-    snoozed = False
     root.state("normal")
 
     screen_width = root.winfo_screenwidth()
