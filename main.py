@@ -18,6 +18,13 @@ snooze_ms = 5 * 60 * 1000
 def get_geometry_str(x):   
     return f'+{x}'
 
+def log(msg):
+    current_time = time.strftime("%H:%M:%S")
+    print(current_time)
+    print(msg)
+    print()
+
+
 class BedtimeWindowManager:
 
     def __init__(self, bedtime_hour, bedtime_minute, morning_hour, morning_minute):
@@ -35,8 +42,6 @@ class BedtimeWindowManager:
         self._additional_windows_info = additional_windows_info
 
         self._unsnooze()
-
-        print(self._get_all_window_info())
 
         self._primary_window_info["window"].mainloop()
 
@@ -56,10 +61,10 @@ class BedtimeWindowManager:
         return True
 
     def _update(self):
-        print("update")
+        log("update")
 
         if self._snoozed:
-            print("pass update")
+            log("pass update")
             return
 
         if self._tracker.is_bed_time():
@@ -83,7 +88,7 @@ class BedtimeWindowManager:
         self._primary_window_info['window'].after(1000, lambda: self._update())
         
     def _snooze(self, snooze_time=snooze_ms):
-        print(f"snooze for {snooze_time}")
+        log(f"snooze for {snooze_time}")
 
         self._snoozed = True
 
@@ -93,7 +98,7 @@ class BedtimeWindowManager:
         self._primary_window_info["window"].after(snooze_time, lambda: self._unsnooze())
 
     def _unsnooze(self):
-        print('unsnooze')
+        log('unsnooze')
     
         for window_info in self._get_all_window_info():
             window = window_info['window']
@@ -102,7 +107,6 @@ class BedtimeWindowManager:
             y_goemetry_str = get_geometry_str(window_info['y'])
             
             display_geometry = f"{window_info["width"]}x{window_info["height"]}{x_goemetry_str}{y_goemetry_str}"
-            print(display_geometry)
             window.geometry(display_geometry)
 
         self._update()
