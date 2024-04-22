@@ -88,7 +88,7 @@ class BedtimeWindowManager:
         self._primary_window_info['window'].after(1000, lambda: self._update())
         
     def _snooze(self, snooze_time=snooze_ms):
-        log(f"snooze for {snooze_time}")
+        log(f"snooze for {snooze_time/1000/60/60:.2f} hours")
 
         self._snoozed = True
 
