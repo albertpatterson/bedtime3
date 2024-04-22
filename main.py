@@ -49,7 +49,6 @@ class BedtimeWindowManager:
             
             current_state = window.wm_state()
 
-            # print(f"window state {current_state}")
             is_normal = "normal" in current_state or "zoomed" in current_state
             if not is_normal:
                 return False
@@ -59,7 +58,6 @@ class BedtimeWindowManager:
     def _update(self):
         print("update")
 
-        # global snoozed
         if self._snoozed:
             print("pass update")
             return
