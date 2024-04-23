@@ -2,3 +2,5 @@ junk
 env
 __pycache__
 expr.py
+proton
+.DS_Store
