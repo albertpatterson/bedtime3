@@ -34,6 +34,16 @@ class BedtimeWindowManager:
 
         self._primary_window_info["window"].mainloop()
 
+    def _get_snoose_ms(self):
+        if isinstance(self._snooze_ms, int):
+            return self._snooze_ms
+        if isinstance(self._snooze_ms, float):
+            return round(self._snooze_ms)
+        elif callable(self._snooze_ms):
+            return self._snooze_ms()
+        else:
+            raise Exception('invalid snooze_ms type')
+
     def _get_all_window_info(self):
         return [self._primary_window_info, *self._additional_windows_info]
     
@@ -78,7 +88,7 @@ class BedtimeWindowManager:
         
     def _snooze(self, snooze_time=None):
         if snooze_time is None:
-            snooze_time = self._snooze_ms
+            snooze_time = self._get_snoose_ms()
         
         log(f"snooze for {snooze_time/1000/60/60:.2f} hours")
 
