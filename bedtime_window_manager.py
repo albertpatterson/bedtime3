@@ -31,7 +31,7 @@ class BedtimeWindowManager:
         self._primary_window_info = primary_window_info
         self._additional_windows_info = additional_windows_info
 
-        self._unsnooze()
+        self._update()
 
         self._primary_window_info["window"].mainloop()
 
@@ -79,15 +79,18 @@ class BedtimeWindowManager:
                     label = window_info['label']
                     label.config(text=message)
                     window_info['window'].attributes("-topmost", True)
-                    
-            self._schedule_update()
+                
+                self._unsnooze(1000)                    
             
         else:
             snooze_ms = round(self._tracker.get_secs_till_next_bedtime()*1000)
             self._snooze(snooze_ms)
     
-    def _schedule_update(self):
-        self._primary_window_info['window'].after(1000, lambda: self._update())
+    def _schedule_update(self, delay):
+        if delay == 0:
+            self._update()
+        else:      
+            self._primary_window_info['window'].after(delay, lambda: self._update())
         
     def _snooze(self, snooze_ms=None):
         if snooze_ms is None:
@@ -103,7 +106,7 @@ class BedtimeWindowManager:
 
         self._primary_window_info["window"].after(snooze_ms, lambda: self._unsnooze())
 
-    def _unsnooze(self):
+    def _unsnooze(self, update_delay = 0):
         log('unsnooze')
     
         self._snoozed = False
@@ -117,7 +120,7 @@ class BedtimeWindowManager:
             display_geometry = f"{window_info["width"]}x{window_info["height"]}{x_goemetry_str}{y_goemetry_str}"
             window.geometry(display_geometry)
 
-        self._update()
+        self._schedule_update(update_delay)
 
     def _get_bedtime_message(self):
         current_time = time.strftime("%H:%M:%S")
