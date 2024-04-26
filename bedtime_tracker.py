@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from util import get_secs_till_bedtime
 
 
 class BedtimeTracker:
@@ -7,9 +8,9 @@ class BedtimeTracker:
         self.bedtime_minute = bedtime_minute
         self.morning_hour = morning_hour
         self.morning_minute = morning_minute
-        self.sleep_time = self._get_sleep_time()
+        self.sleep_secs = self._get_sleep_secs()
 
-    def _get_sleep_time(self):
+    def _get_sleep_timedelta(self):
         if self.bedtime_hour > self.morning_hour:
             return timedelta(
                 hours=(23 - self.bedtime_hour), minutes=(60 - self.bedtime_minute)
@@ -20,31 +21,17 @@ class BedtimeTracker:
                 minutes=self.morning_minute - self.bedtime_minute,
             )
 
+    def _get_sleep_secs(self):
+        return self._get_sleep_timedelta().total_seconds()
+
     def is_bed_time(self):
+        secs_till_bedtime = self.get_secs_till_bedtime()
 
-        seconds_till_bed = self.time_until_bed().total_seconds()
+        return secs_till_bedtime <= 0 and secs_till_bedtime > -1 * self.sleep_secs
 
-        past_bed_time = (
-            seconds_till_bed > 24 * 60 * 60 - self.sleep_time.total_seconds()
-        )
+    def get_secs_till_bedtime(self):
+        return get_secs_till_bedtime(self.bedtime_hour, self.bedtime_minute)
 
-        return seconds_till_bed == 0 or past_bed_time
-
-    def time_until_bed(self):
-        now = datetime.now()
-        dt = (
-            datetime(
-                year=now.year,
-                month=now.month,
-                day=now.day,
-                hour=self.bedtime_hour,
-                minute=self.bedtime_minute,
-                second=now.second,
-            )
-            - now
-        )
-
-        if dt.total_seconds() < 0:
-            dt += timedelta(hours=24)
-
-        return dt
+    def get_secs_till_next_bedtime(self):
+        secs = self.get_secs_till_bedtime()
+        return secs if secs > 0 else 24 * 60 * 60 + secs

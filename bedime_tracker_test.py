@@ -16,7 +16,8 @@ def test_before_pm_bedtime():
         bedtime_hour=23, bedtime_minute=0, morning_hour=8, morning_minute=0
     )
     assert not btt.is_bed_time()
-    assert btt.time_until_bed().total_seconds() == 30 * 60
+    assert btt.get_secs_till_bedtime() == 30 * 60
+    assert btt.get_secs_till_next_bedtime() == 30 * 60
 
 
 @freeze_time("2024-01-02 7:30:00")
@@ -33,7 +34,8 @@ def test_after_pm_morning():
         bedtime_hour=23, bedtime_minute=0, morning_hour=8, morning_minute=0
     )
     assert not btt.is_bed_time()
-    assert btt.time_until_bed().total_seconds() == 14.5 * 60 * 60
+    assert btt.get_secs_till_bedtime() == 14.5 * 60 * 60 - 24 * 60 * 60
+    assert btt.get_secs_till_next_bedtime() == 14.5 * 60 * 60
 
 
 @freeze_time("2024-02-01 1:30:00")
@@ -50,7 +52,8 @@ def test_before_am_bedtime():
         bedtime_hour=1, bedtime_minute=0, morning_hour=8, morning_minute=0
     )
     assert not btt.is_bed_time()
-    assert btt.time_until_bed().total_seconds() == 30 * 60
+    assert btt.get_secs_till_bedtime() == 30 * 60
+    assert btt.get_secs_till_next_bedtime() == 30 * 60
 
 
 @freeze_time("2024-01-01 23:30:00")
@@ -59,7 +62,8 @@ def test_before_am_bedtime_2():
         bedtime_hour=1, bedtime_minute=0, morning_hour=8, morning_minute=0
     )
     assert not btt.is_bed_time()
-    assert btt.time_until_bed().total_seconds() == 1.5 * 60 * 60
+    assert btt.get_secs_till_bedtime() == 1.5 * 60 * 60
+    assert btt.get_secs_till_next_bedtime() == 1.5 * 60 * 60
 
 
 @freeze_time("2024-02-01 7:30:00")
@@ -76,4 +80,5 @@ def test_after_am_morning():
         bedtime_hour=1, bedtime_minute=0, morning_hour=8, morning_minute=0
     )
     assert not btt.is_bed_time()
-    assert btt.time_until_bed().total_seconds() == 16.5 * 60 * 60
+    assert btt.get_secs_till_bedtime() == 16.5 * 60 * 60 - 24 * 60 * 60
+    assert btt.get_secs_till_next_bedtime() == 16.5 * 60 * 60

@@ -3,6 +3,7 @@ import time
 from bedtime_tracker import BedtimeTracker
 from datetime import datetime
 import screeninfo
+from util import display_time
 
 def get_geometry_str(x):   
     return f'+{x}'
@@ -34,7 +35,7 @@ class BedtimeWindowManager:
 
         self._primary_window_info["window"].mainloop()
 
-    def _get_snoose_ms(self):
+    def _get_snooze_ms(self):
         if isinstance(self._snooze_ms, int):
             return self._snooze_ms
         if isinstance(self._snooze_ms, float):
@@ -43,7 +44,7 @@ class BedtimeWindowManager:
             return self._snooze_ms()
         else:
             raise Exception('invalid snooze_ms type')
-
+        
     def _get_all_window_info(self):
         return [self._primary_window_info, *self._additional_windows_info]
     
@@ -66,6 +67,8 @@ class BedtimeWindowManager:
             log("pass update")
             return
 
+        log(f'is bedtime {self._tracker.is_bed_time()}')
+
         if self._tracker.is_bed_time():
             state_is_normal = self._is_state_normal()
             if not state_is_normal:
@@ -80,24 +83,25 @@ class BedtimeWindowManager:
             self._schedule_update()
             
         else:
-            snooze_ms = round(1000 * self._tracker.time_until_bed().total_seconds())
+            snooze_ms = round(self._tracker.get_secs_till_next_bedtime()*1000)
             self._snooze(snooze_ms)
     
     def _schedule_update(self):
         self._primary_window_info['window'].after(1000, lambda: self._update())
         
-    def _snooze(self, snooze_time=None):
-        if snooze_time is None:
-            snooze_time = self._get_snoose_ms()
+    def _snooze(self, snooze_ms=None):
+        if snooze_ms is None:
+            snooze_ms = self._get_snooze_ms()
         
-        log(f"snooze for {snooze_time/1000/60/60:.2f} hours")
+        snooze_ms_str = display_time(snooze_ms/1000)
+        log(f"snooze for {snooze_ms_str}")
 
         self._snoozed = True
 
         for window_info in self._get_all_window_info():
             window_info["window"].state("iconic")
 
-        self._primary_window_info["window"].after(snooze_time, lambda: self._unsnooze())
+        self._primary_window_info["window"].after(snooze_ms, lambda: self._unsnooze())
 
     def _unsnooze(self):
         log('unsnooze')
