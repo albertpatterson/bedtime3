@@ -67,8 +67,8 @@ def display_time(seconds):
     if seconds < 60:
         return f"{seconds}s"  # Display seconds
     elif seconds < 3600:
-        minutes = int(seconds / 60)
+        minutes = round(seconds / 60)
         return f"{minutes}m"  # Display minutes
     else:
-        hours = int(seconds / 3600)
+        hours = round(seconds / 3600)
         return f"{hours}h"  # Display hours
