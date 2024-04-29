@@ -5,18 +5,23 @@ from datetime import datetime
 import screeninfo
 from util import display_time
 
-def get_geometry_str(x):   
-    return f'+{x}'
+
+def get_geometry_str(x):
+    return f"+{x}"
+
 
 def log(msg):
     current_time = time.strftime("%H:%M:%S")
     print(current_time)
     print(msg)
     print()
-    
+
+
 class BedtimeWindowManager:
 
-    def __init__(self, bedtime_hour, bedtime_minute, morning_hour, morning_minute, snooze_ms):
+    def __init__(
+        self, bedtime_hour, bedtime_minute, morning_hour, morning_minute, snooze_ms
+    ):
         self._snoozed = False
 
         self._tracker = BedtimeTracker(
@@ -43,21 +48,21 @@ class BedtimeWindowManager:
         elif callable(self._snooze_ms):
             return self._snooze_ms()
         else:
-            raise Exception('invalid snooze_ms type')
-        
+            raise Exception("invalid snooze_ms type")
+
     def _get_all_window_info(self):
         return [self._primary_window_info, *self._additional_windows_info]
-    
+
     def _is_state_normal(self):
         for window_info in self._get_all_window_info():
-            window = window_info['window']
-            
+            window = window_info["window"]
+
             current_state = window.wm_state()
 
             is_normal = "normal" in current_state or "zoomed" in current_state
             if not is_normal:
                 return False
-        
+
         return True
 
     def _update(self):
@@ -67,7 +72,7 @@ class BedtimeWindowManager:
             log("pass update")
             return
 
-        log(f'is bedtime {self._tracker.is_bed_time()}')
+        log(f"is bedtime {self._tracker.is_bed_time()}")
 
         if self._tracker.is_bed_time():
             state_is_normal = self._is_state_normal()
@@ -76,27 +81,27 @@ class BedtimeWindowManager:
             else:
                 message = self._get_bedtime_message()
                 for window_info in self._get_all_window_info():
-                    label = window_info['label']
+                    label = window_info["label"]
                     label.config(text=message)
-                    window_info['window'].attributes("-topmost", True)
-                
-                self._unsnooze(1000)                    
-            
+                    window_info["window"].attributes("-topmost", True)
+
+                self._unsnooze(1000)
+
         else:
-            snooze_ms = round(self._tracker.get_secs_till_next_bedtime()*1000)
+            snooze_ms = round(self._tracker.get_secs_till_next_bedtime() * 1000)
             self._snooze(snooze_ms)
-    
+
     def _schedule_update(self, delay):
         if delay == 0:
             self._update()
-        else:      
-            self._primary_window_info['window'].after(delay, lambda: self._update())
-        
+        else:
+            self._primary_window_info["window"].after(delay, lambda: self._update())
+
     def _snooze(self, snooze_ms=None):
         if snooze_ms is None:
             snooze_ms = self._get_snooze_ms()
-        
-        snooze_ms_str = display_time(snooze_ms/1000)
+
+        snooze_ms_str = display_time(snooze_ms / 1000)
         log(f"snooze for {snooze_ms_str}")
 
         self._snoozed = True
@@ -106,18 +111,18 @@ class BedtimeWindowManager:
 
         self._primary_window_info["window"].after(snooze_ms, lambda: self._unsnooze())
 
-    def _unsnooze(self, update_delay = 0):
-        log('unsnooze')
-    
+    def _unsnooze(self, update_delay=0):
+        log("unsnooze")
+
         self._snoozed = False
-    
+
         for window_info in self._get_all_window_info():
-            window = window_info['window']
+            window = window_info["window"]
             window.state("zoomed")
-            x_goemetry_str = get_geometry_str(window_info['x'])
-            y_goemetry_str = get_geometry_str(window_info['y'])
-            
-            display_geometry = f"{window_info["width"]}x{window_info["height"]}{x_goemetry_str}{y_goemetry_str}"
+            x_goemetry_str = get_geometry_str(window_info["x"])
+            y_goemetry_str = get_geometry_str(window_info["y"])
+
+            display_geometry = f"{window_info['width']}x{window_info['height']}{x_goemetry_str}{y_goemetry_str}"
             window.geometry(display_geometry)
 
         self._schedule_update(update_delay)
@@ -186,7 +191,7 @@ class BedtimeWindowManager:
         # screeninfo is relative to the bottom left corner, we need to use the top left corner with tkinter
         for monitor in additional_monitors:
             monitor.y -= monitor.height
-            
+
         primary_monitor.y = 0
-            
+
         return primary_monitor, additional_monitors
